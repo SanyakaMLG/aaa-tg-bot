@@ -2,6 +2,7 @@
 Bot for playing tic tac toe game with multiple CallbackQueryHandlers.
 """
 import random
+import os
 from copy import deepcopy
 import logging
 
@@ -13,7 +14,8 @@ from telegram.ext import (
     ContextTypes,
     ConversationHandler,
 )
-import os
+from bot import set_bot_choose
+from utils import won, is_draw
 
 # Enable logging
 logging.basicConfig(
@@ -50,72 +52,6 @@ def generate_keyboard(state: list[list[str]]) -> list[list[InlineKeyboardButton]
         ]
         for c in range(3)
     ]
-
-
-def set_bot_choose(state: list[list[str]], level_bot: str, bot_side: str = ZERO) -> None:
-    if level_bot == 'easy':
-        available_picks = [(i, j) for i in range(3) for j in range(3) if state[i][j] == '.']
-        pick = random.choice(available_picks)
-        state[pick[0]][pick[1]] = bot_side
-    else:
-        choose_best_move(state, bot_side)
-
-
-def choose_best_move(state: list[list[str]], bot_side: str) -> None:
-    best_score = float('-inf')
-    best_move = None
-
-    for i in range(3):
-        for j in range(3):
-            if state[i][j] == '.':
-                state[i][j] = bot_side
-                score = minimax(state, bot_side, False)
-                state[i][j] = '.'  # undo the move
-
-                if score > best_score:
-                    best_score = score
-                    best_move = (i, j)
-
-    if best_move is None:
-        raise IndexError('No empty space left')
-
-    state[best_move[0]][best_move[1]] = bot_side
-
-
-def minimax(state: list[list[str]], bot_side: str, maximizing_player: bool) -> int:
-    if won(state):
-        return -1 if maximizing_player else 1
-
-    if is_draw(state):
-        return 0
-
-    player_side = CROSS if bot_side == ZERO else ZERO
-
-    if maximizing_player:
-        max_eval = float('-inf')
-        for i in range(3):
-            for j in range(3):
-                if state[i][j] == '.':
-                    state[i][j] = bot_side
-                    cur_eval = minimax(state, bot_side, False)
-                    state[i][j] = '.'  # undo the move
-                    max_eval = max(max_eval, cur_eval)
-        return max_eval
-    else:
-        min_eval = float('inf')
-        for i in range(3):
-            for j in range(3):
-                if state[i][j] == '.':
-                    state[i][j] = player_side
-                    cur_eval = minimax(state, bot_side, True)
-                    state[i][j] = '.'  # undo the move
-                    min_eval = min(min_eval, cur_eval)
-        return min_eval
-
-
-def is_draw(state: list[list[str]]) -> bool:
-    return all(state[i][j] != '.' for i in range(3) for j in range(3))
-
 
 async def choose_side(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Let the player choose their side (X or O)."""
@@ -231,26 +167,6 @@ async def game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         f'Please, put {player_side} to the free place', reply_markup=reply_markup
     )
     return CONTINUE_GAME
-
-
-def won(state: list[list[str]]) -> bool:
-    """Check if crosses or zeros have won the game"""
-    rows = [set(state[i][j] for i in range(3)) for j in range(3)]
-    cols = [set(state[i][j] for j in range(3)) for i in range(3)]
-    diags = [
-        set(state[i][i] for i in range(3)),
-        set(state[i][2 - i] for i in range(3))
-    ]
-    for row in rows:
-        if len(row) == 1 and '.' not in row:
-            return True
-    for col in cols:
-        if len(col) == 1 and '.' not in col:
-            return True
-    for diag in diags:
-        if len(diag) == 1 and '.' not in diag:
-            return True
-    return False
 
 
 async def end(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
