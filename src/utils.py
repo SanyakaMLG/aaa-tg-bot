@@ -19,4 +19,5 @@ def won(state: list[list[str]]) -> bool:
 
 
 def is_draw(state: list[list[str]]) -> bool:
+    """Check if the game is a draw"""
     return all(state[i][j] != '.' for i in range(3) for j in range(3))

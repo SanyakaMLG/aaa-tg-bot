@@ -1,7 +1,6 @@
 """
 Bot for playing tic tac toe game with multiple CallbackQueryHandlers.
 """
-import random
 import os
 from copy import deepcopy
 import logging
@@ -52,6 +51,7 @@ def generate_keyboard(state: list[list[str]]) -> list[list[InlineKeyboardButton]
         ]
         for c in range(3)
     ]
+
 
 async def choose_side(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Let the player choose their side (X or O)."""

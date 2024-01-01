@@ -7,6 +7,7 @@ ZERO = 'O'
 
 
 def set_bot_choose(state: list[list[str]], level_bot: str, bot_side: str = ZERO) -> None:
+    """Set bot's choice on the field"""
     if level_bot == 'easy':
         available_picks = [(i, j) for i in range(3) for j in range(3) if state[i][j] == '.']
         pick = random.choice(available_picks)
@@ -16,6 +17,7 @@ def set_bot_choose(state: list[list[str]], level_bot: str, bot_side: str = ZERO)
 
 
 def choose_best_move(state: list[list[str]], bot_side: str) -> None:
+    """Choose the best move for the bot"""
     best_score = float('-inf')
     best_move = None
 
@@ -37,6 +39,7 @@ def choose_best_move(state: list[list[str]], bot_side: str) -> None:
 
 
 def minimax(state: list[list[str]], bot_side: str, maximizing_player: bool) -> int:
+    """Minimax algorithm implementation"""
     if won(state):
         return -1 if maximizing_player else 1
 
