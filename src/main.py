@@ -104,10 +104,12 @@ async def choose_side_callback(update: Update, context: ContextTypes.DEFAULT_TYP
 
     keyboard = generate_keyboard(user_data['keyboard_state'])
     reply_markup = InlineKeyboardMarkup(keyboard)
-    await update.callback_query.edit_message_text(f'Bot\'s level: {user_data["bot_level"]}. '
-                                                  f'You chose {side}. '
-                                                  f'{side} (your) turn! Please, put {side} to the free place',
-                                                  reply_markup=reply_markup)
+    await update.callback_query.edit_message_text(
+        f'Bot\'s level: {user_data["bot_level"]}. '
+        f'You chose {side}. '
+        f'{side} (your) turn! Please, put {side} to the free place',
+        reply_markup=reply_markup
+    )
     return CONTINUE_GAME
 
 
@@ -123,7 +125,7 @@ async def game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     logger.info(f'State after player\'s move: {state}')
 
     if won(state):
-        logger.info(f'Player won')
+        logger.info('Player won')
         keyboard = generate_keyboard(state)
         reply_markup = InlineKeyboardMarkup(keyboard)
         await update.callback_query.edit_message_text(
@@ -134,11 +136,11 @@ async def game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     try:
         set_bot_choose(state, lvl, bot_side)
     except IndexError:
-        logger.info(f'Not enough space for bot\'s move. Draw')
+        logger.info('Not enough space for bot\'s move. Draw')
         keyboard = generate_keyboard(state)
         reply_markup = InlineKeyboardMarkup(keyboard)
         await update.callback_query.edit_message_text(
-            f'Draw!', reply_markup=reply_markup
+            'Draw!', reply_markup=reply_markup
         )
         return FINISH_GAME
 
@@ -148,14 +150,14 @@ async def game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     if is_draw(state):
-        logger.info(f'Draw after bot\'s move')
+        logger.info('Draw after bot\'s move')
         await update.callback_query.edit_message_text(
-            f'Draw!', reply_markup=reply_markup
+            'Draw!', reply_markup=reply_markup
         )
         return FINISH_GAME
 
     if won(state):
-        logger.info(f'Bot won')
+        logger.info('Bot won')
         await update.callback_query.edit_message_text(
             f'{bot_side} (bot) won!', reply_markup=reply_markup
         )
